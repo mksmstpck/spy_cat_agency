@@ -1,18 +1,28 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:15
     container_name: sca_db
-    restart: unless-stopped
     environment:
       POSTGRES_USER: sca_user
       POSTGRES_PASSWORD: sca_pass
       POSTGRES_DB: sca_db
+    volumes:
+      - .docker/postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+
+  sca:
+    env_file:
+      - ./dev.env
+    links:
+      - db
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "1323:1323"
 
   migrate:
     image: migrate/migrate:v4.17.0
@@ -29,6 +39,8 @@ services:
         "-database",
         "postgres://sca_user:sca_pass@db:5432/sca_db?sslmode=disable",
       ]
+    command: ["up"]
 
 volumes:
-  db_data:
+  db:
+    driver: local
