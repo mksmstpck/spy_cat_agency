@@ -1,0 +1,447 @@
+{
+	"info": {
+		"_postman_id": "1e60c189-d13e-482c-9917-95032c3ee1fd",
+		"name": "SCA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14603980"
+	},
+	"item": [
+		{
+			"name": "Cat",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"murchyk\",\n    \"breed\": \"American Bobtail\",\n    \"years_experience\": 2,\n    \"salary\": 1000.2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/cat",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"cat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get 1",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/cat/ccceac25-9114-4cea-a3b4-40fb1cede37f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"cat",
+								"ccceac25-9114-4cea-a3b4-40fb1cede37f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/cat",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"cat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update exp",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"years_experience\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/cat/experience/ccceac25-9114-4cea-a3b4-40fb1cede37f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"cat",
+								"experience",
+								"ccceac25-9114-4cea-a3b4-40fb1cede37f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update salary",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"salary\": 1100.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/cat/salary/ccceac25-9114-4cea-a3b4-40fb1cede37f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"cat",
+								"salary",
+								"ccceac25-9114-4cea-a3b4-40fb1cede37f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/cat/ccceac25-9114-4cea-a3b4-40fb1cede37f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"cat",
+								"ccceac25-9114-4cea-a3b4-40fb1cede37f"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mission",
+			"item": [
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/mission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"mission"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get one",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/mission/577d0b64-cb7a-4aa1-bc86-d289c2da3e28",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"mission",
+								"577d0b64-cb7a-4aa1-bc86-d289c2da3e28"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Stealth Operation in Berlin\",\n  \"description\": \"Neutralize high-value targets quietly\",\n  \"assigned_cat_id\": \"8049ce8b-104c-4363-ba87-5bca7f2b25fe\",\n  \"targets\": [\n    {\n      \"name\": \"Hans Müller\",\n      \"country\": \"Germany\",\n      \"notes\": \"Suspected double agent, high security\"\n    },\n    {\n      \"name\": \"Elena Petrova\",\n      \"country\": \"Russia\",\n      \"notes\": \"Operates in cyber espionage\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/mission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"mission"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update completed",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"completed\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/mission/279bb3da-23ac-4ea6-9430-a8cd57029d95/completed",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"mission",
+								"279bb3da-23ac-4ea6-9430-a8cd57029d95",
+								"completed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update assign",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cat_id\": \"98815042-160d-4ab6-8748-89071714066c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/mission/279bb3da-23ac-4ea6-9430-a8cd57029d95/assign",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"mission",
+								"279bb3da-23ac-4ea6-9430-a8cd57029d95",
+								"assign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/mission/279bb3da-23ac-4ea6-9430-a8cd57029d95",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"mission",
+								"279bb3da-23ac-4ea6-9430-a8cd57029d95"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Target",
+			"item": [
+				{
+					"name": "Get one",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/target/ad2f1be2-fc9b-41e0-9981-4372f5fd0642",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"target",
+								"ad2f1be2-fc9b-41e0-9981-4372f5fd0642"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mission_id\": \"577d0b64-cb7a-4aa1-bc86-d289c2da3e28\",\n  \"name\": \"Dr. Evil\",\n  \"country\": \"Iceland\",\n  \"notes\": \"Operates a secret volcano base\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/target",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"target"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update completed",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"completed\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/target/ad2f1be2-fc9b-41e0-9981-4372f5fd0642/completed",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"target",
+								"ad2f1be2-fc9b-41e0-9981-4372f5fd0642",
+								"completed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update notes",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"notes\": \"bla bla bla\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1323/target/ad2f1be2-fc9b-41e0-9981-4372f5fd0642/notes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"target",
+								"ad2f1be2-fc9b-41e0-9981-4372f5fd0642",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1323/target/ad2f1be2-fc9b-41e0-9981-4372f5fd0642",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1323",
+							"path": [
+								"target",
+								"ad2f1be2-fc9b-41e0-9981-4372f5fd0642"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
