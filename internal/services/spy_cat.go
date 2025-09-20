@@ -27,7 +27,7 @@ func (s *spyCat) GetAll(ctx context.Context) ([]models.SpyCat, error) {
 	return s.db.SpyCat.GetAll(ctx)
 }
 
-func (s *spyCat) GetByID(ctx context.Context, id uuid.UUID) (models.SpyCat, error) {
+func (s *spyCat) GetByID(ctx context.Context, id uuid.UUID) (*models.SpyCat, error) {
 	return s.db.SpyCat.GetByID(ctx, id)
 }
 

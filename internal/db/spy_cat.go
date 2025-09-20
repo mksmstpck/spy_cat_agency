@@ -95,7 +95,7 @@ func (db *spyCat) GetAll(ctx context.Context) ([]models.SpyCat, error) {
 	return cats, nil
 }
 
-func (db *spyCat) GetByID(ctx context.Context, id uuid.UUID) (models.SpyCat, error) {
+func (db *spyCat) GetByID(ctx context.Context, id uuid.UUID) (*models.SpyCat, error) {
 	var cat models.SpyCat
 
 	err := db.conn.QueryRow(
@@ -111,8 +111,8 @@ func (db *spyCat) GetByID(ctx context.Context, id uuid.UUID) (models.SpyCat, err
 		b.name,
 		b.created_at
 		 FROM cats c
-		 LEFT JOIN breeds b ON sc.breed_id = b.id
-		 WHERE sc.id = $1;`,
+		 LEFT JOIN breeds b ON c.breed_id = b.id
+		 WHERE c.id = $1;`,
 		id,
 	).Scan(
 		&cat.ID,
@@ -128,10 +128,10 @@ func (db *spyCat) GetByID(ctx context.Context, id uuid.UUID) (models.SpyCat, err
 	)
 
 	if err != nil {
-		return models.SpyCat{}, err
+		return nil, err
 	}
 
-	return cat, nil
+	return &cat, nil
 }
 
 func (db *spyCat) UpdateSalary(ctx context.Context, id uuid.UUID, salary float32) error {
@@ -174,7 +174,7 @@ func (db *spyCat) Delete(ctx context.Context, id uuid.UUID) error {
 	_, err := db.conn.Exec(
 		ctx,
 		"DELETE FROM cats WHERE id = $1",
-		id.ID,
+		id,
 	)
 
 	if err != nil {

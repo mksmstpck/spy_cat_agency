@@ -12,12 +12,12 @@ import (
 )
 
 type spyCat struct {
-	config   *config.Config
+	config   config.Config
 	services *services.Services
 }
 
 func newSpyCat(
-	config *config.Config,
+	config config.Config,
 	services *services.Services,
 ) *spyCat {
 	return &spyCat{
@@ -39,25 +39,29 @@ func (h *spyCat) Create(c *gin.Context) {
 	err := c.Bind(&catCreate)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	breed, err := h.services.Breed.GetByName(c.Request.Context(), catCreate.Breed)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	cat := &models.SpyCat{
-		Name:   catCreate.Name,
-		Breed:  *breed,
-		Salary: catCreate.Salary,
+		Name:     catCreate.Name,
+		Breed:    *breed,
+		ExpYears: catCreate.ExpYears,
+		Salary:   catCreate.Salary,
 	}
 
 	cat, err = h.services.SpyCat.Create(c.Request.Context(), *cat)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusCreated, cat)
@@ -68,13 +72,15 @@ func (h *spyCat) GetByID(c *gin.Context) {
 	newID, err := uuid.Parse(id)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	cat, err := h.services.SpyCat.GetByID(c.Request.Context(), newID)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, cat)
@@ -84,7 +90,8 @@ func (h *spyCat) GetAll(c *gin.Context) {
 	cats, err := h.services.SpyCat.GetAll(c.Request.Context())
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, cats)
@@ -102,19 +109,20 @@ func (h *spyCat) UpdateSalary(c *gin.Context) {
 	err := c.Bind(&catUpdate)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	cat := models.SpyCat{
-		ID:       catUpdate.ID,
-		ExpYears: catUpdate.ExpYears,
-		Salary:   catUpdate.Salary,
+		ID:     catUpdate.ID,
+		Salary: catUpdate.Salary,
 	}
 
 	err = h.services.SpyCat.UpdateSalary(c.Request.Context(), cat.ID, cat.Salary)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusNoContent, nil)
@@ -126,19 +134,20 @@ func (h *spyCat) UpdateExpYears(c *gin.Context) {
 	err := c.Bind(&catUpdate)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	cat := models.SpyCat{
 		ID:       catUpdate.ID,
 		ExpYears: catUpdate.ExpYears,
-		Salary:   catUpdate.Salary,
 	}
 
 	err = h.services.SpyCat.UpdateExperience(c.Request.Context(), cat.ID, cat.ExpYears)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusNoContent, nil)
@@ -149,13 +158,15 @@ func (h *spyCat) Delete(c *gin.Context) {
 	newID, err := uuid.Parse(id)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	err = h.services.SpyCat.Delete(c.Request.Context(), newID)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusNoContent, nil)

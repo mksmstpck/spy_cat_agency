@@ -10,6 +10,7 @@ import (
 	"github.com/mksmstpck/spy_cat_agency/internal/config"
 	"github.com/mksmstpck/spy_cat_agency/internal/db"
 	"github.com/mksmstpck/spy_cat_agency/internal/events"
+	"github.com/mksmstpck/spy_cat_agency/internal/handlers"
 	"github.com/mksmstpck/spy_cat_agency/internal/services"
 	"github.com/sirupsen/logrus"
 )
@@ -49,4 +50,7 @@ func main() {
 	if err := events.NewEvents(*services, config).LoadBreeds(ctx); err != nil {
 		logrus.Error(err)
 	}
+
+	handlers := handlers.NewHandlers(config, services)
+	handlers.HandleAll(ctx)
 }
