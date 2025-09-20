@@ -57,6 +57,12 @@ func (h *spyCat) Create(c *gin.Context) {
 		Salary:   catCreate.Salary,
 	}
 
+	if err := cat.Validate(); err != nil {
+		logrus.Error(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	cat, err = h.services.SpyCat.Create(c.Request.Context(), *cat)
 	if err != nil {
 		logrus.Error(err)
