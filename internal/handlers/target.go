@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -27,33 +28,63 @@ func newTarget(
 }
 
 type targetCreate struct {
-	MissionID uuid.UUID `json:"mission_id"`
-	Name      string    `json:"name"`
-	Country   string    `json:"country"`
+	MissionID uuid.UUID `json:"mission_id" binding:"required"`
+	Name      string    `json:"name" binding:"required"`
+	Country   string    `json:"country" binding:"required"`
 	Notes     string    `json:"notes"`
+}
+
+func (input *targetCreate) Validate() error {
+	if strings.TrimSpace(input.Name) == "" {
+		return &ValidationError{Field: "name", Message: "target name cannot be empty"}
+	}
+	if strings.TrimSpace(input.Country) == "" {
+		return &ValidationError{Field: "country", Message: "target country cannot be empty"}
+	}
+	return nil
 }
 
 func (h *target) Create(c *gin.Context) {
 	var targetCreate targetCreate
 
-	err := c.Bind(&targetCreate)
-	if err != nil {
+	if err := c.ShouldBindJSON(&targetCreate); err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request body",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	if err := targetCreate.Validate(); err != nil {
+		logrus.Error(err)
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"error":   "Validation failed",
+			"details": err.Error(),
+		})
 		return
 	}
 
 	target := models.Target{
 		MissionID: targetCreate.MissionID,
-		Name:      targetCreate.Name,
-		Country:   targetCreate.Country,
+		Name:      strings.TrimSpace(targetCreate.Name),
+		Country:   strings.TrimSpace(targetCreate.Country),
 		Notes:     targetCreate.Notes,
 	}
 
 	createdTarget, err := h.services.Target.Create(c.Request.Context(), target)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if isBusinessLogicError(err) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error":   "Business rule violation",
+				"details": err.Error(),
+			})
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create target",
+		})
 		return
 	}
 
@@ -62,88 +93,140 @@ func (h *target) Create(c *gin.Context) {
 
 func (h *target) GetByID(c *gin.Context) {
 	id := c.Param("id")
+	if id == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Target ID is required",
+		})
+		return
+	}
+
 	newID, err := uuid.Parse(id)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid target ID format",
+			"details": "ID must be a valid UUID",
+		})
 		return
 	}
 
 	target, err := h.services.Target.GetByID(c.Request.Context(), newID)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve target",
+		})
+		return
+	}
+
+	if target == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "Target not found",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, target)
 }
 
-type targetUpdate struct {
-	Completed *bool   `json:"completed,omitempty"`
-	Notes     *string `json:"notes,omitempty"`
+type targetUpdateCompleted struct {
+	Completed *bool `json:"completed" binding:"required"`
 }
 
 func (h *target) UpdateCompleted(c *gin.Context) {
 	id := c.Param("id")
+	if id == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Target ID is required",
+		})
+		return
+	}
+
 	newID, err := uuid.Parse(id)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid target ID format",
+			"details": "ID must be a valid UUID",
+		})
 		return
 	}
 
-	var targetUpdate targetUpdate
-	err = c.Bind(&targetUpdate)
-	if err != nil {
+	var targetUpdate targetUpdateCompleted
+	if err := c.ShouldBindJSON(&targetUpdate); err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if targetUpdate.Completed == nil {
-		logrus.Error("completed field is required")
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "completed field is required"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request body",
+			"details": "completed field is required and must be a boolean",
+		})
 		return
 	}
 
 	err = h.services.Target.UpdateCompleted(c.Request.Context(), newID, *targetUpdate.Completed)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if isBusinessLogicError(err) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error":   "Business rule violation",
+				"details": err.Error(),
+			})
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update target",
+		})
 		return
 	}
 
 	c.JSON(http.StatusNoContent, nil)
 }
 
+type targetUpdateNotes struct {
+	Notes *string `json:"notes" binding:"required"`
+}
+
 func (h *target) UpdateNotes(c *gin.Context) {
 	id := c.Param("id")
+	if id == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Target ID is required",
+		})
+		return
+	}
+
 	newID, err := uuid.Parse(id)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid target ID format",
+			"details": "ID must be a valid UUID",
+		})
 		return
 	}
 
-	var targetUpdate targetUpdate
-	err = c.Bind(&targetUpdate)
-	if err != nil {
+	var targetUpdate targetUpdateNotes
+	if err := c.ShouldBindJSON(&targetUpdate); err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if targetUpdate.Notes == nil {
-		logrus.Error("notes field is required")
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "notes field is required"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request body",
+			"details": "notes field is required",
+		})
 		return
 	}
 
 	err = h.services.Target.UpdateNotes(c.Request.Context(), newID, *targetUpdate.Notes)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if isBusinessLogicError(err) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error":   "Business rule violation",
+				"details": err.Error(),
+			})
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update target notes",
+		})
 		return
 	}
 
@@ -152,17 +235,36 @@ func (h *target) UpdateNotes(c *gin.Context) {
 
 func (h *target) Delete(c *gin.Context) {
 	id := c.Param("id")
+	if id == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Target ID is required",
+		})
+		return
+	}
+
 	newID, err := uuid.Parse(id)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid target ID format",
+			"details": "ID must be a valid UUID",
+		})
 		return
 	}
 
 	err = h.services.Target.Delete(c.Request.Context(), newID)
 	if err != nil {
 		logrus.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if isBusinessLogicError(err) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error":   "Business rule violation",
+				"details": err.Error(),
+			})
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete target",
+		})
 		return
 	}
 
